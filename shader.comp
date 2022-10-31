@@ -1,0 +1,16 @@
+#version 450 core
+
+layout (local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
+layout(constant_id = 0) const int kArraySize = 1024;
+layout(set = 0, binding = 0) buffer inputBuffer {
+    uint i[kArraySize];    
+};                                 
+layout(set = 0, binding = 1) buffer outputBuffer {
+    uint o[kArraySize];                  
+};
+
+void main()
+{
+    uint index = gl_GlobalInvocationID.x;
+    o[index] = i[index];
+}
