@@ -150,9 +150,9 @@ vkCreateBuffer(device, bufferCreateInfo.this, None, pOutBuffer)
 outBuffer = pVkBuffer_value(pOutBuffer)
 vkBindBufferMemory(device, outBuffer, deviceMemory, bufferSize)
 
-shaderFileSize = os.path.getsize("shader.spv")
+shaderFileSize = os.path.getsize("../shader/echo.spv")
 shaderCode = new_pauint32_t(shaderFileSize)
-read_file("shader.spv", shaderCode, shaderFileSize)
+read_file("../shader/echo.spv", shaderCode, shaderFileSize)
 shaderInfo          = VkShaderModuleCreateInfo()
 shaderInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
 shaderInfo.codeSize = shaderFileSize
