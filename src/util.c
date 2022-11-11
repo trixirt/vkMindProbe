@@ -1,5 +1,6 @@
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <vulkan/vulkan_core.h>
 uint32_t vk_make_api_version(uint32_t variant, uint32_t major, uint32_t minor, uint32_t patch) {
 	return VK_MAKE_API_VERSION(variant, major, minor, patch);
@@ -44,7 +45,13 @@ int read_file(const char *n, uint32_t *b, size_t s) {
 	int ret = -1;
 	int fd = open(n, O_RDONLY);
 	if (fd >= 0) {
-		ret = read(fd, b, s);
+		if (b) {
+			ret = read(fd, b, s);
+		} else {
+			struct stat buf;
+			if (!fstat(fd, &buf))
+				ret = buf.st_size;
+		}
 		close(fd);
 	}
 	return ret;
@@ -54,7 +61,10 @@ int write_file(const char *n, uint32_t *b, size_t s) {
 	int ret = -1;
 	int fd = open(n, O_WRONLY | O_CREAT);
 	if (fd >= 0) {
-		ret = write(fd, b, s);
+		if (b)
+			ret = write(fd, b, s);
+		else
+			ret = 0;
 		close(fd);
 	}
 	return ret;
