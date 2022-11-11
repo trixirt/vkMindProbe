@@ -26,7 +26,6 @@
 # Copied from
 # https://www.duskborn.com/posts/a-simple-vulkan-compute-example/
 
-import os
 import sys
 from ctypes import *
 from vk import *
@@ -150,7 +149,7 @@ vkCreateBuffer(device, bufferCreateInfo.this, None, pOutBuffer)
 outBuffer = pVkBuffer_value(pOutBuffer)
 vkBindBufferMemory(device, outBuffer, deviceMemory, bufferSize)
 
-shaderFileSize = os.path.getsize("../shader/echo.spv")
+shaderFileSize = read_file("../shader/echo.spv", None, 0)
 shaderCode = new_pauint32_t(shaderFileSize)
 read_file("../shader/echo.spv", shaderCode, shaderFileSize)
 shaderInfo          = VkShaderModuleCreateInfo()
