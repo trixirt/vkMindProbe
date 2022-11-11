@@ -173,7 +173,7 @@ b.binding         = 1
 paVkDescriptorSetLayoutBinding_setitem(paDescriptorSetLayoutBindings, 1, b)
 
 descriptorSetLayoutCreateInfo = VkDescriptorSetLayoutCreateInfo()
-descriptorSetLayoutCreateInfo.stype        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO
+descriptorSetLayoutCreateInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO
 descriptorSetLayoutCreateInfo.bindingCount = 2
 descriptorSetLayoutCreateInfo.pBindings    = paDescriptorSetLayoutBindings
 pDescriptorSetLayout = new_pVkDescriptorSetLayout()
@@ -181,7 +181,7 @@ vkCreateDescriptorSetLayout(device, descriptorSetLayoutCreateInfo, None, pDescri
 descriptorSetLayout = pVkDescriptorSetLayout_value(pDescriptorSetLayout)
 
 pipelineLayoutCreateInfo = VkPipelineLayoutCreateInfo()
-pipelineLayoutCreateInfo.stype = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
+pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
 pipelineLayoutCreateInfo.setLayoutCount = 1
 pipelineLayoutCreateInfo.pSetLayouts = pDescriptorSetLayout
 pPipelineLayout = new_pVkPipelineLayout()
