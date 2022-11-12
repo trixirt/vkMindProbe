@@ -1,10 +1,14 @@
 
 vc_helpers=../swig/vc_array_functions.i  ../swig/vc_arrays.i  ../swig/vc_cast.i  ../swig/vc_pointers.i
 
-_vk.so : $(vc_helpers) ../swig/vk.i ../src/util.o ../swig/vc.h
-	swig -Wall -python -I../include -o vk_python.c ../swig/vk.i
-	gcc -c -fpic vk_python.c -I /usr/include/python3.9 -I ../include
-	gcc -shared ../src/util.o vk_python.o -lvulkan -o _vk.so
+_vk.so : ../src/util.o vk_python.o
+	gcc -shared $^ -lvulkan -o $@
+
+vk_python.c : $(vc_helpers) ../swig/vk.i ../swig/vc.h
+	swig -Wall -python -I../include -o $@ ../swig/vk.i
+
+vk_python.o : vk_python.c
+	gcc -c -fpic -I /usr/include/python3.9 -I ../include $^ -o $@
 
 test: _vk.so ../shader/echo.spv
 	python VkComputeSample.py
@@ -12,3 +16,4 @@ test: _vk.so ../shader/echo.spv
 clean:
 	- rm *.o *.so
 	- rm vk_python.c vk.py
+	- rm -rf __pycache__
