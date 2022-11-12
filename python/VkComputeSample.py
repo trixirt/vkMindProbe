@@ -27,7 +27,6 @@
 # https://www.duskborn.com/posts/a-simple-vulkan-compute-example/
 
 import sys
-from ctypes import *
 from vk import *
 
 appInfo                   = VkApplicationInfo()
