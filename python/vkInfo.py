@@ -5,27 +5,17 @@
 
 import sys
 from vk import *
-    
-appInfo                   = VkApplicationInfo()
-appInfo.sType             = VK_STRUCTURE_TYPE_APPLICATION_INFO
-appInfo.apiVersion        = vk_make_api_version(0,1,3,0)
 
-instInfo                  = VkInstanceCreateInfo()
-instInfo.sType            = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
-instInfo.pApplicationInfo = appInfo
-
-p = new_pVkInstance()
-vkCreateInstance(instInfo, None, p)
-instance = pVkInstance_value(p)
+instance = vkInstance()
 
 pNumGPUs = new_puint32_t()
-vkEnumeratePhysicalDevices(instance, pNumGPUs, None)
+vkEnumeratePhysicalDevices(instance.v, pNumGPUs, None)
 NumGPUs = puint32_t_value(pNumGPUs)
 if (NumGPUs == 0):
     sys.exit("No gpus")
 
 paGPUs = new_paVkPhysicalDevice(NumGPUs)
-vkEnumeratePhysicalDevices(instance, pNumGPUs, paGPUs)
+vkEnumeratePhysicalDevices(instance.v, pNumGPUs, paGPUs)
 
 for i in range(0, NumGPUs):
     physicalDevice = paVkPhysicalDevice_getitem(paGPUs, i)
