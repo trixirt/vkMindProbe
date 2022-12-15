@@ -1,5 +1,5 @@
 #
-# Copyright Tom Rix trix@redhat.com
+# Copyright 2022 Tom Rix trix@redhat.com
 #
 from vk import *
 
