@@ -4,3 +4,4 @@ from .str import *
 from .device import *
 from .memory import *
 from .buffer import *
+from .shader import *
