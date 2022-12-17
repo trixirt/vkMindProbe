@@ -35,12 +35,26 @@ class vkDevice:
                             return i,m
         return -1,-1;
 
+    def strVkPhysicalDeviceType(self, s):
+        if (s == VK_PHYSICAL_DEVICE_TYPE_OTHER):
+            return "other"
+        elif (s == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU):
+            return "integrated gpu"
+        elif (s == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU):
+            return "descrete gpu"
+        elif (s == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU):
+            return "virtual gpu"
+        elif (s == VK_PHYSICAL_DEVICE_TYPE_CPU):
+            return "cpu"
+        else:
+            return "unknown"
+
     def print(self):
         print("\tapiVersion:    " + hex(self.properties.apiVersion))
         print("\tdriverVersion: " + hex(self.properties.driverVersion))
         print("\tvendorID:      " + hex(self.properties.vendorID))
         print("\tdeviceID:      " + hex(self.properties.deviceID))
-        print("\tdeviceType:    " + strVkPhysicalDeviceType(self.properties.deviceType))
+        print("\tdeviceType:    " + self.strVkPhysicalDeviceType(self.properties.deviceType))
         print("\tdeviceName:    " + self.properties.deviceName)
         print("\tlimits:")
         v = self.properties.limits.maxComputeSharedMemorySize
