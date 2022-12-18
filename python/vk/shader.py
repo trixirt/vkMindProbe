@@ -42,24 +42,15 @@ class vkShader:
         self.b = buffers
         self.c = os.path.abspath(comp)
         self.s = os.path.abspath(spv)
+        self.ss = 0
+        self.sc = None
         self.v = None
         f = open(self.c, 'r')
         self.cc = f.read()
         f.close()
-        self.ss = read_file(self.s, None, 0)
-        if self.ss > 0:
-            self.sc = new_pauint32_t(self.ss)
-            read_file(self.s, self.sc, self.ss)
-            info          = VkShaderModuleCreateInfo()
-            info.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
-            info.codeSize = self.ss
-            info.pCode    = self.sc
-            p = new_pVkShaderModule()
-            vkCreateShaderModule(self.d, info, None, p)
-            self.v = pVkShaderModule_value(p)
-            self.bind()
-        else:
-            self.build()
+        self.cleanlist = []
+        self.create()
+        self.build()
 
     def bind(self):
         num = self.bindings()
@@ -136,6 +127,32 @@ class vkShader:
         m = re.findall(r'layout\(.*binding.*', self.cc)
         return len(m)
     
+    def build(self, args=[]):
+        if not self.v:
+            return
+        self.init_parser()
+        self.args = self.parser.parse_args(args)
+        if not os.path.isfile(self.args.glslc) or not os.access(self.args.glslc, os.X_OK):
+            raise self.parser.error("Invalid glslc executable")
+
+        # Base command for generating SPIR-V code
+        command = [self.args.glslc, "-c", "--target-spv=spv1.6", "-fshader-stage=compute",
+                   self.args.infile, "-o", self.args.outfile]
+        if self.args.define:
+            command.extend(self.args.define)
+        if self.args.glslc_arg:
+            command.extend(self.args.glslc_arg)
+
+        if self.args.verbose:
+            print("glslc command: '{}'".format(" ".join(command)))
+        r = subprocess.check_output(command).decode("ascii")
+        if self.args.verbose:
+            print("result: '{}'".format(" ".join(r)))
+
+        self.s = self.args.outfile
+        self.ss = read_file(self.s, None, 0)
+        self.create()
+
     def init_parser(self):
         if self.parser is None:
             self.parser = argparse.ArgumentParser(prog="vkShader::build")
@@ -180,36 +197,34 @@ class vkShader:
                 action="store_true",
                 help="Print in verbose mode")
 
-    def build(self, args=['--verbose']):
-        self.init_parser()
-        self.args = self.parser.parse_args(args)
-        if not os.path.isfile(self.args.glslc) or not os.access(self.args.glslc, os.X_OK):
-            raise self.parser.error("Invalid glslc executable")
+    def clean(self):
+        if self.cleanlist == None:
+            return
+        for c in reversed(self.cleanlist):
+            l = len(c)
+            if l == 2:
+                c[0](c[1])
+            elif l == 3:
+                c[0](c[1], c[2])
+            elif l == 4:
+                c[0](c[1], c[2], c[3])
+        self.cleanlist.clear()
 
-        # Base command for generating SPIR-V code
-        command = [self.args.glslc, "-c", "--target-spv=spv1.6", "-fshader-stage=compute",
-                   self.args.infile, "-o", self.args.outfile]
-        if self.args.define:
-            command.extend(self.args.define)
-        if self.args.glslc_arg:
-            command.extend(self.args.glslc_arg)
-
-        if self.args.verbose:
-            print("glslc command: '{}'".format(" ".join(command)))
-        r = subprocess.check_output(command).decode("ascii")
-        if self.args.verbose:
-            print("result: '{}'".format(" ".join(r)))
-
-        self.s = self.args.outfile
+    def create(self):
+        self.clean()
         self.ss = read_file(self.s, None, 0)
         if self.ss > 0:
             self.sc = new_pauint32_t(self.ss)
+            self.cleanlist.append([delete_puint32_t, self.sc])
             read_file(self.s, self.sc, self.ss)
             info          = VkShaderModuleCreateInfo()
             info.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
             info.codeSize = self.ss
             info.pCode    = self.sc
             p = new_pVkShaderModule()
+            self.cleanlist.append([delete_pVkShaderModule, p])
             vkCreateShaderModule(self.d, info, None, p)
             self.v = pVkShaderModule_value(p)
+            self.cleanlist.append([vkDestroyShaderModule, self.d, self.v, None])
             self.bind()
+
