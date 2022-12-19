@@ -36,12 +36,16 @@ import subprocess
 from vk import *
 
 class vkShader:
-    def __init__(self, device, buffers, comp, spv):
+    def __init__(self, device, buffers, comp, spv = None):
         self.parser = None
         self.d = device
         self.b = buffers
         self.c = os.path.abspath(comp)
-        self.s = os.path.abspath(spv)
+        if spv != None:
+            self.s = os.path.abspath(spv)
+        else:
+            tup = os.path.splitext(self.c)
+            self.s = tup[0] + '.spv'
         self.ss = 0
         self.sc = None
         self.v = None
