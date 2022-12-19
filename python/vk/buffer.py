@@ -1,6 +1,18 @@
 #
 # Copyright 2022 Tom Rix trix@redhat.com
 #
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 from vk import *
 
 class vkBuffer:
@@ -9,9 +21,16 @@ class vkBuffer:
         self.d = device
         self.m = memory
         self.q = queue
+        self.s = []
+        self.cl = []
         self.pq = new_puint32_t()
         puint32_t_assign(self.pq, queue)
+
+    def __del__(self):
+        delete_puint32_t(self.pq)
+
     def allocate(self, size):
+        self.clean()
         self.s = size
         info                       = VkBufferCreateInfo()
         info.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO
@@ -23,8 +42,25 @@ class vkBuffer:
         for s in self.s:
             info.size = s
             p = new_pVkBuffer()
+            self.cl.append([delete_pVkBuffer, p])
             vkCreateBuffer(self.d, info.this, None, p)
             v = pVkBuffer_value(p)
+            self.cl.append([vkDestroyBuffer, self.d, v, None])
             vkBindBufferMemory(self.d, v, self.m, o)
             o += s
             self.v.append(v)
+
+    def clean(self):
+        if self.cl == None:
+            return
+        for c in reversed(self.cl):
+            l = len(c)
+            if l == 2:
+                c[0](c[1])
+            elif l == 3:
+                c[0](c[1], c[2])
+            elif l == 4:
+                c[0](c[1], c[2], c[3])
+            elif l == 5:
+                c[0](c[1], c[2], c[3], c[4])
+        self.cl.clear()
