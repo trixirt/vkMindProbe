@@ -22,6 +22,7 @@ class vkBuffer:
         self.m = memory
         self.q = queue
         self.s = []
+        self.o = []
         self.cl = []
         self.pq = new_puint32_t()
         puint32_t_assign(self.pq, queue)
@@ -32,6 +33,7 @@ class vkBuffer:
     def allocate(self, size):
         self.clean()
         self.s = size
+        self.o = []
         info                       = VkBufferCreateInfo()
         info.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO
         info.usage                 = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
@@ -56,6 +58,7 @@ class vkBuffer:
                 if (o % a):
                     o = o + (a - (o % a))
             vkBindBufferMemory(self.d, v, self.m, o)
+            self.o.append(o)
             o += s
             self.v.append(v)
 
