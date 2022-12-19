@@ -46,6 +46,15 @@ class vkBuffer:
             vkCreateBuffer(self.d, info.this, None, p)
             v = pVkBuffer_value(p)
             self.cl.append([vkDestroyBuffer, self.d, v, None])
+            if o != 0:
+                p = new_pVkMemoryRequirements()
+                self.cl.append([delete_pVkMemoryRequirements, p])
+                vkGetBufferMemoryRequirements(self.d, v, p)
+                m = pVkMemoryRequirements_value(p)
+                a = m.alignment
+                print(o)
+                if (o % a):
+                    o = o + (a - (o % a))
             vkBindBufferMemory(self.d, v, self.m, o)
             o += s
             self.v.append(v)
