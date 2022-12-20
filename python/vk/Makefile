@@ -4,7 +4,7 @@ vc_helpers=../../swig/vc_array_functions.i  ../../swig/vc_arrays.i  ../../swig/v
 _vk.so : ../../src/util.o vk_python.o
 	gcc -shared $^ -lvulkan -o $@
 
-vk_python.c : $(vc_helpers) ../../swig/vk.i ../../swig/vc.h
+vk_python.c : $(vc_helpers) ../../swig/vk.i ../../swig/vc.h ../../include/util.h
 	swig -Wall -python -I../../include -o $@ ../../swig/vk.i
 
 vk_python.o : vk_python.c
