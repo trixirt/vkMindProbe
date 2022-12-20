@@ -69,3 +69,7 @@ int write_file(const char *n, uint32_t *b, size_t s) {
 	}
 	return ret;
 }
+
+void * pointer_add(void *p, int v) {
+	return p + v;
+}

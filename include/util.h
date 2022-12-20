@@ -37,3 +37,4 @@ uint64_t vk_whole_size ();
 
 int read_file(const char *n, uint32_t *b, size_t s);
 int write_file(const char *n, uint32_t *b, size_t s);
+void * pointer_add(void *p, int v);
