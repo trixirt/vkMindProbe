@@ -52,7 +52,7 @@ class vkMemory:
                 c[0](c[1], c[2], c[3], c[4])
         self.cl.clear()
 
-    def map(self, offset, size, flags, data):
+    def map(self, data, size, offset = 0, flags = 0):
         vkMapMemory(self.d, self.v, offset, size, flags, data)
 
     def unmap(self):
