@@ -29,6 +29,7 @@ class vkBuffer:
 
     def __del__(self):
         delete_puint32_t(self.pq)
+        self.clean()
 
     def allocate(self, size):
         self.clean()
@@ -44,13 +45,13 @@ class vkBuffer:
         for s in self.s:
             info.size = s
             p = new_pVkBuffer()
-            self.cl.append([delete_pVkBuffer, p])
+            vkClean.dust(self, [delete_pVkBuffer, p])
             vkCreateBuffer(self.d, info.this, None, p)
             v = pVkBuffer_value(p)
-            self.cl.append([vkDestroyBuffer, self.d, v, None])
+            vkClean.dust(self, [vkDestroyBuffer, self.d, v, None])
             if o != 0:
                 p = new_pVkMemoryRequirements()
-                self.cl.append([delete_pVkMemoryRequirements, p])
+                vkClean.dust(self, [delete_pVkMemoryRequirements, p])
                 vkGetBufferMemoryRequirements(self.d, v, p)
                 m = pVkMemoryRequirements_value(p)
                 a = m.alignment
@@ -62,20 +63,9 @@ class vkBuffer:
             o += s
             self.v.append(v)
 
+
     def clean(self):
-        if self.cl == None:
-            return
-        for c in reversed(self.cl):
-            l = len(c)
-            if l == 2:
-                c[0](c[1])
-            elif l == 3:
-                c[0](c[1], c[2])
-            elif l == 4:
-                c[0](c[1], c[2], c[3])
-            elif l == 5:
-                c[0](c[1], c[2], c[3], c[4])
-        self.cl.clear()
+        vkClean.sweep(self)
 
     def extent(self):
         r = 0

@@ -3,26 +3,37 @@
 #
 from vk import *
 
-class vkDevice:
+class vkDevice():
     def __init__(self, paPhysicalDevices, index):
+        self.cl = []
         self.v = paVkPhysicalDevice_getitem(paPhysicalDevices, index)
         p = new_pVkPhysicalDeviceProperties()
+        vkClean.dust(self, [delete_pVkPhysicalDeviceProperties, p])
         vkGetPhysicalDeviceProperties(self.v, p)
         self.properties = p
         p = new_pVkPhysicalDeviceMemoryProperties()
+        vkClean.dust(self, [delete_pVkPhysicalDeviceMemoryProperties, p])
         vkGetPhysicalDeviceMemoryProperties(self.v, p)
         self.memoryProperties = p
         p = new_puint32_t()
+        vkClean.dust(self, [delete_puint32_t, p])
         vkGetPhysicalDeviceQueueFamilyProperties(self.v, p, None)
         self.numQueue = puint32_t_value(p)
         self.queueProperties = []
         if (self.numQueue):
             pa = new_paVkQueueFamilyProperties(self.numQueue)
+            vkClean.dust(self, [delete_paVkQueueFamilyProperties, pa])
             vkGetPhysicalDeviceQueueFamilyProperties(self.v, p, pa)
             for i in range(0, self.numQueue):
                 v = paVkQueueFamilyProperties_getitem(pa, i)
                 self.queueProperties.append(v)
 
+    def __del__(self):
+        self.clean()
+
+    def clean(self):
+        vkClean.sweep(self)
+        
     def pick(self, memory):
         for i in range(0, self.numQueue):
             if self.queueProperties[i].queueFlags & VK_QUEUE_COMPUTE_BIT:
@@ -72,18 +83,27 @@ class vkDevice:
         v = self.properties.limits.minMemoryMapAlignment
         print("\t\tminMemoryMapAlignment:          %u" % v)
 
-class vkDevices :
+class vkDevices() :
     def __init__(self, instance):
+        self.cl = []
         p = new_puint32_t()
+        vkClean.dust(self, [delete_puint32_t, p])
         vkEnumeratePhysicalDevices(instance.v, p, None)
         self.num = puint32_t_value(p)
         self.v = []
         if (self.num != 0):
             pa = new_paVkPhysicalDevice(self.num)
+            vkClean.dust(self, [delete_paVkPhysicalDevice, pa])
             vkEnumeratePhysicalDevices(instance.v, p, pa)
             for i in range(0, self.num):
                 v = vkDevice(pa, i)
                 self.v.append(v)
+
+    def __del__(self):
+        self.clean()
+        
+    def clean(self):
+        vkClean.sweep(self)
 
     def create(self, indexDevice, indexQueue):
         queueCreateInfo                       = VkDeviceQueueCreateInfo()
@@ -95,8 +115,10 @@ class vkDevices :
         deviceCreateInfo.queueCreateInfoCount = 1
         deviceCreateInfo.pQueueCreateInfos    = queueCreateInfo.this
         p = new_pVkDevice()
+        vkClean.dust(self, [delete_pVkDevice, p])
         vkCreateDevice(self.v[indexDevice].v, deviceCreateInfo.this, None, p)
         v = pVkDevice_value(p)
+        vkClean.dust(self, [vkDestroyDevice, v, None])
         return v
         
     def pick(self, memory):

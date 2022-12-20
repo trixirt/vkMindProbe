@@ -35,6 +35,12 @@ class vkc:
 
     def __del__(self):
         delete_ppvoid(self.mm)
+        self.command.clean()
+        self.shader.clean()
+        self.buffers.clean()
+        self.memory.clean()
+        self.devices.clean()
+        self.instance.clean()
 
     def run(self, x, y, z):
         self.command.begin(self.shader, x, y, z)

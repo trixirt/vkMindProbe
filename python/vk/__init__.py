@@ -1,4 +1,5 @@
 from .vk import *
+from .clean import *
 from .instance import *
 from .device import *
 from .memory import *

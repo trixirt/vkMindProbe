@@ -22,6 +22,12 @@ class vkMemory:
         self.i = memoryIndex
         self.s = 0
 
+    def __del__(self):
+        self.clean()
+
+    def clean(self):
+        vkClean.sweep(self)
+
     def allocate(self, size):
         if size > self.s:
             self.clean()
@@ -31,26 +37,11 @@ class vkMemory:
             info.allocationSize  = self.s
             info.memoryTypeIndex = self.i
             p = new_pVkDeviceMemory()
-            self.cl.append([delete_pVkDeviceMemory, p])
+            vkClean.dust(self, [delete_pVkDeviceMemory, p])
             vkAllocateMemory(self.d, info, None, p)
             v = pVkDeviceMemory_value(p)
-            self.cl.append([vkFreeMemory, self.d, v, None])
+            vkClean.dust(self, [vkFreeMemory, self.d, v, None])
             self.v = v
-
-    def clean(self):
-        if self.cl == None:
-            return
-        for c in reversed(self.cl):
-            l = len(c)
-            if l == 2:
-                c[0](c[1])
-            elif l == 3:
-                c[0](c[1], c[2])
-            elif l == 4:
-                c[0](c[1], c[2], c[3])
-            elif l == 5:
-                c[0](c[1], c[2], c[3], c[4])
-        self.cl.clear()
 
     def map(self, data, size, offset = 0, flags = 0):
         vkMapMemory(self.d, self.v, offset, size, flags, data)

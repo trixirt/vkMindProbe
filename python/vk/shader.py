@@ -59,10 +59,13 @@ class vkShader:
     def __del__(self):
         self.clean()
 
+    def clean(self):
+        vkClean.sweep(self)
+
     def bind(self):
         num = self.bindings()
         p = new_paVkDescriptorSetLayoutBinding(num)
-        self.cl.append([delete_paVkDescriptorSetLayoutBinding, p])
+        vkClean.dust(self, [delete_paVkDescriptorSetLayoutBinding, p])
         b = VkDescriptorSetLayoutBinding()
         b.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
         b.descriptorCount = 1
@@ -76,19 +79,19 @@ class vkShader:
         info.bindingCount = num
         info.pBindings    = p
         pdsl = new_pVkDescriptorSetLayout()
-        self.cl.append([delete_pVkDescriptorSetLayout, pdsl])
+        vkClean.dust(self, [delete_pVkDescriptorSetLayout, pdsl])
         vkCreateDescriptorSetLayout(self.d, info, None, pdsl);
         v = pVkDescriptorSetLayout_value(pdsl)
-        self.cl.append([vkDestroyDescriptorSetLayout, self.d, v, None])
+        vkClean.dust(self, [vkDestroyDescriptorSetLayout, self.d, v, None])
         info = VkPipelineLayoutCreateInfo()
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
         info.setLayoutCount = 1
         info.pSetLayouts = pdsl
         p = new_pVkPipelineLayout()
-        self.cl.append([delete_pVkPipelineLayout, p])
+        vkClean.dust(self, [delete_pVkPipelineLayout, p])
         vkCreatePipelineLayout(self.d, info, None, p)
         self.pipelineLayout = pVkPipelineLayout_value(p)
-        self.cl.append([vkDestroyPipelineLayout, self.d, self.pipelineLayout, None])
+        vkClean.dust(self, [vkDestroyPipelineLayout, self.d, self.pipelineLayout, None])
         info = VkComputePipelineCreateInfo()
         info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO
         info.stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
@@ -97,10 +100,10 @@ class vkShader:
         info.stage.pName = "main"
         info.layout = self.pipelineLayout
         p = new_pVkPipeline()
-        self.cl.append([delete_pVkPipeline, p])
+        vkClean.dust(self, [delete_pVkPipeline, p])
         vkCreateComputePipelines(self.d, None, 1, info, None, p)
         self.pipeline = pVkPipeline_value(p)
-        self.cl.append([vkDestroyPipeline, self.d, self.pipeline, None])
+        vkClean.dust(self, [vkDestroyPipeline, self.d, self.pipeline, None])
         ps = VkDescriptorPoolSize()
         ps.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
         ps.descriptorCount = num
@@ -110,19 +113,19 @@ class vkShader:
         info.poolSizeCount = 1
         info.pPoolSizes =  ps.this
         p = new_pVkDescriptorPool()
-        self.cl.append([delete_pVkDescriptorPool, p])
+        vkClean.dust(self, [delete_pVkDescriptorPool, p])
         vkCreateDescriptorPool(self.d, info, None, p)
         v = pVkDescriptorPool_value(p)
-        self.cl.append([vkDestroyDescriptorPool, self.d, v, None])
+        vkClean.dust(self, [vkDestroyDescriptorPool, self.d, v, None])
         info = VkDescriptorSetAllocateInfo()
         info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO
         info.descriptorPool = v
         info.descriptorSetCount = 1
         info.pSetLayouts = pdsl
         self.descriptorSet = new_pVkDescriptorSet()
-        self.cl.append([delete_pVkDescriptorSet, self.descriptorSet])
+        vkClean.dust(self, [delete_pVkDescriptorSet, self.descriptorSet])
         vkAllocateDescriptorSets(self.d, info, self.descriptorSet)
-        self.cl.append([vkFreeDescriptorSets, self.d, v, 1, self.descriptorSet])
+        vkClean.dust(self, [vkFreeDescriptorSets, self.d, v, 1, self.descriptorSet])
         v = pVkDescriptorSet_value(self.descriptorSet)
         p = new_paVkWriteDescriptorSet(num)
         for i in range(0, num):
@@ -216,36 +219,21 @@ class vkShader:
                 action="store_true",
                 help="Print in verbose mode")
 
-    def clean(self):
-        if self.cl == None:
-            return
-        for c in reversed(self.cl):
-            l = len(c)
-            if l == 2:
-                c[0](c[1])
-            elif l == 3:
-                c[0](c[1], c[2])
-            elif l == 4:
-                c[0](c[1], c[2], c[3])
-            elif l == 5:
-                c[0](c[1], c[2], c[3], c[4])
-        self.cl.clear()
-
     def create(self):
         self.clean()
         self.ss = read_file(self.s, None, 0)
         if self.ss > 0:
             self.sc = new_pauint32_t(self.ss)
-            self.cl.append([delete_puint32_t, self.sc])
+            vkClean.dust(self, [delete_puint32_t, self.sc])
             read_file(self.s, self.sc, self.ss)
             info          = VkShaderModuleCreateInfo()
             info.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
             info.codeSize = self.ss
             info.pCode    = self.sc
             p = new_pVkShaderModule()
-            self.cl.append([delete_pVkShaderModule, p])
+            vkClean.dust(self, [delete_pVkShaderModule, p])
             vkCreateShaderModule(self.d, info, None, p)
             self.v = pVkShaderModule_value(p)
-            self.cl.append([vkDestroyShaderModule, self.d, self.v, None])
+            vkClean.dust(self, [vkDestroyShaderModule, self.d, self.v, None])
             self.bind()
 
