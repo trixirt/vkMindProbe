@@ -69,6 +69,8 @@ class vkDevice:
         y = pauint32_t_getitem(self.properties.limits.maxComputeWorkGroupSize, 1)
         z = pauint32_t_getitem(self.properties.limits.maxComputeWorkGroupSize, 2)
         print("\t\tmaxComputeWorkGroupSize:        %u %u %u" % (x, y, z))
+        v = self.properties.limits.minMemoryMapAlignment
+        print("\t\tminMemoryMapAlignment:          %u" % v)
 
 class vkDevices :
     def __init__(self, instance):
