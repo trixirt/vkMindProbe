@@ -76,3 +76,11 @@ class vkBuffer:
             elif l == 5:
                 c[0](c[1], c[2], c[3], c[4])
         self.cl.clear()
+
+    def extent(self):
+        r = 0
+        i = len(self.s)
+        if i > 0:
+            i = i - 1
+            r = self.s[i] + self.o[i]
+        return r
