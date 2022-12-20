@@ -17,18 +17,39 @@
 from vk import *
 
 class vkc:
-    def __init__(self, memory, sizes, shader):
+    def __init__(self, sizes, shader):
+        memory = 1024
+        for s in sizes:
+            memory = memory + s
         self.instance = vkInstance()
         self.devices = vkDevices(self.instance)
         self.dIdx, self.qIdx, self.mIdx = self.devices.pick(memory)
         self.device = self.devices.create(self.dIdx, self.qIdx)
-        self.deviceMemory = vkMemory(self.device, self.mIdx)
-        self.deviceMemory.allocate(memory)
-        self.buffers = vkBuffer(self.device, self.deviceMemory.v, self.qIdx)
+        self.memory = vkMemory(self.device, self.mIdx)
+        self.memory.allocate(memory)
+        self.buffers = vkBuffer(self.device, self.memory.v, self.qIdx)
         self.buffers.allocate(sizes)
         self.shader = vkShader(self.device, self.buffers, shader)
         self.command = vkCommand(self.device, self.qIdx)
+        self.mm = new_ppvoid()
+
+    def __del__(self):
+        delete_ppvoid(self.mm)
+
     def run(self, x, y, z):
         self.command.begin(self.shader, x, y, z)
         self.command.submit()
         self.command.end()
+
+    def maps(self):
+        r = []
+        size = self.buffers.extent()
+        self.memory.map(self.mm, size)
+        v = ppvoid_value(self.mm)
+        for b in self.buffers.o:
+            p = pointer_add(v, b)
+            r.append(p)
+        return r
+
+    def unmap(self):
+        self.memory.unmap()
