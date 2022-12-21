@@ -73,3 +73,6 @@ int write_file(const char *n, uint32_t *b, size_t s) {
 void * pointer_add(void *p, int v) {
 	return p + v;
 }
+void * pointer(uint64_t v) {
+	return (void *)v;
+}
