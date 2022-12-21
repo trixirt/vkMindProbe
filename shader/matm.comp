@@ -1,0 +1,41 @@
+//
+// Copyright 2022 Tom Rix trix@redhat.com
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+#version 450 core
+
+layout(set = 0, binding = 0) buffer Mat_a { float v[]; } A;
+layout(set = 0, binding = 1) buffer Mat_b { float v[]; } B;
+layout(set = 0, binding = 2) buffer Mat_c { float v[]; } C;
+#define cm size.v.x
+#define ck size.v.y
+#define cn size.v.w
+layout(set = 0, binding = 3) buffer Size { uvec4 v; } size;
+
+void main() {
+  uint i, j, k;
+  i = gl_GlobalInvocationID.x;
+  j = gl_GlobalInvocationID.y;
+
+  // for (i = 0; i < cm; i++) {
+    // for (j = 0; j < cn; j++) {
+      float r = 0.;
+      for (k = 0; k < ck; k++) {
+        r += A.v[i * ck + k] * B.v[k * cn + j];
+      }
+      C.v[i * cn + j] = r;
+    // }
+  // }
+}
+
