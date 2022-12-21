@@ -61,6 +61,7 @@ class vkShader:
 
     def clean(self):
         vkClean.sweep(self)
+        self.v = None
 
     def bind(self):
         num = self.bindings()
@@ -150,7 +151,7 @@ class vkShader:
         return len(m)
     
     def build(self, args=[]):
-        if not self.v:
+        if self.v is not None:
             return
         self.init_parser()
         self.args = self.parser.parse_args(args)
@@ -236,4 +237,5 @@ class vkShader:
             self.v = pVkShaderModule_value(p)
             vkClean.dust(self, [vkDestroyShaderModule, self.d, self.v, None])
             self.bind()
+
 

@@ -18,6 +18,7 @@ from vk import *
 
 class vkc:
     def __init__(self, sizes, shader):
+        self.mm = new_ppvoid()
         memory = 1024
         for s in sizes:
             memory = memory + s
@@ -30,8 +31,8 @@ class vkc:
         self.buffers = vkBuffer(self.device, self.memory.v, self.qIdx)
         self.buffers.allocate(sizes)
         self.shader = vkShader(self.device, self.buffers, shader)
+        self.shader.build()
         self.command = vkCommand(self.device, self.qIdx)
-        self.mm = new_ppvoid()
 
     def __del__(self):
         delete_ppvoid(self.mm)
@@ -42,6 +43,9 @@ class vkc:
         self.devices.clean()
         self.instance.clean()
 
+    def bind(self):
+        self.shader.bind()
+        
     def run(self, x, y, z):
         self.command.begin(self.shader, x, y, z)
         self.command.submit()

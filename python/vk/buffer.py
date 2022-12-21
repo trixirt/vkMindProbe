@@ -55,7 +55,6 @@ class vkBuffer:
                 vkGetBufferMemoryRequirements(self.d, v, p)
                 m = pVkMemoryRequirements_value(p)
                 a = m.alignment
-                print(o)
                 if (o % a):
                     o = o + (a - (o % a))
             vkBindBufferMemory(self.d, v, self.m, o)
