@@ -176,6 +176,11 @@ class vkShader:
         self.ss = read_file(self.s, None, 0)
         self.create()
 
+    def constant_ids(self):
+        # layout(constant_id = 0) const uint M = 1;
+        m = re.findall(r'layout\(.*constant_id.*', self.cc)
+        return len(m)
+
     def init_parser(self):
         if self.parser is None:
             self.parser = argparse.ArgumentParser(prog="vkShader::build")
