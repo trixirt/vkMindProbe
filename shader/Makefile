@@ -1,5 +1,12 @@
-echo.spv: echo.comp
-	glslc -c -Werror --target-spv=spv1.6 -o echo.spv echo.comp
+SPV = 	echo.spv \
+	gemm_reference.spv \
+	matm.spv \
+	memset.spv
+
+%.spv : %.comp
+	glslc -c -Werror --target-spv=spv1.6 $< -o $@
+
+all: $(SPV)
 
 clean:
 	- rm *.spv

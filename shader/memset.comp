@@ -1,0 +1,10 @@
+#version 450 core
+
+layout(constant_id = 0) const uint v = 0;
+layout(set = 0, binding = 0) buffer outputBuffer { uint o[]; };                                 
+
+void main()
+{
+    uint index = gl_GlobalInvocationID.x;
+    o[index] = v;
+}
