@@ -6,4 +6,5 @@ from .memory import *
 from .buffer import *
 from .shader import *
 from .command import *
+from .specialization import *
 from .vkc import *

@@ -36,10 +36,13 @@ import subprocess
 from vk import *
 
 class vkShader:
-    def __init__(self, device, buffers, comp, spv = None):
+    def __init__(self, device, comp, spv = None, buffers = None, specializations = None):
         self.parser = None
         self.d = device
         self.b = buffers
+        self.spec = None
+        if specializations != None:
+            self.spec = specializations.p
         self.c = os.path.abspath(comp)
         if spv != None:
             self.s = os.path.abspath(spv)
@@ -99,6 +102,7 @@ class vkShader:
         info.stage.stage = VK_SHADER_STAGE_COMPUTE_BIT
         info.stage.module = self.v
         info.stage.pName = "main"
+        info.stage.pSpecializationInfo = self.spec
         info.layout = self.pipelineLayout
         p = new_pVkPipeline()
         vkClean.dust(self, [delete_pVkPipeline, p])

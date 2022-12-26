@@ -30,26 +30,26 @@ class vkSpecialization:
     def bind(self):
         self.clean()
         if len(self.l):
-            self.p = new_pVkSpecialializationInfo()
+            self.p = new_pVkSpecializationInfo()
             vkClean.dust(self, [delete_pVkSpecializationInfo, self.p])
             v = VkSpecializationInfo()
             v.mapEntryCount = len(self.l)
             pa = new_paVkSpecializationMapEntry(v.mapEntryCount);
             vkClean.dust(self, [delete_paVkSpecializationMapEntry, pa])
-            v.pMapEntries = p.this
+            v.pMapEntries = pa.this
             s = 0
             for l in self.l:
                 s = s + l[1]
             self
             v.dataSize = s
             p = new_pauint8_t(s)
-            vkClean.dust(self, delete_pauint8_t, p)
+            vkClean.dust(self, [delete_pauint8_t, p])
             d = uint8_t_to_void(p)
             v.pData = d
-            pVkSpecialializationInfo_assign(self.p, v)
+            pVkSpecializationInfo_assign(self.p, v)
             o = 0
             i = 0
-            for l self.l:
+            for l in self.l:
                 v = VkSpecializationMapEntry()
                 v.constantID = l[2]
                 v.offset = o
@@ -59,7 +59,7 @@ class vkSpecialization:
                 d = pointer_add(d, l[1])
                 o = o + l[1]
                 i = i + 1
-            self.l.clean()
+            self.l.clear()
         
     def clean(self):
         vkClean.sweep(self)

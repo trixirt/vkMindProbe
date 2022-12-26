@@ -17,7 +17,7 @@
 from vk import *
 
 class vkc:
-    def __init__(self, sizes, shader):
+    def __init__(self, sizes, shader, specializations = None):
         self.mm = new_ppvoid()
         memory = 1024
         for s in sizes:
@@ -30,7 +30,7 @@ class vkc:
         self.memory.allocate(memory)
         self.buffers = vkBuffer(self.device, self.memory.v, self.qIdx)
         self.buffers.allocate(sizes)
-        self.shader = vkShader(self.device, self.buffers, shader)
+        self.shader = vkShader(self.device, shader, None, self.buffers, specializations)
         self.shader.build()
         self.command = vkCommand(self.device, self.qIdx)
 
